@@ -11,12 +11,27 @@
 (defn initial-schema []
   (sql/create-table "accounts"
                     [:id :serial "PRIMARY KEY"]
-                    [:name :varchar "NOT NULL"])
+                    [:name :varchar "NOT NULL"]
+                    [:created_at :timestamp "NOT NULL" "DEFAULT CURRENT_TIMESTAMP"])
   (sql/create-table "transactions"
                     [:id :serial "PRIMARY KEY"]
+                    [:particulars :varchar]
+                    [:code :varchar]
+                    [:reference :varchar]
                     [:amount :numeric "NOT NULL"]
                     [:credit :integer "NOT NULL REFERENCES accounts(id)"]
-                    [:debit :integer "NOT NULL REFERENCES accounts(id)"]))
+                    [:debit :integer "NOT NULL REFERENCES accounts(id)"]
+                    [:created_at :timestamp "NOT NULL" "DEFAULT CURRENT_TIMESTAMP"]))
+
+(defn add-dummy-accounts []
+  (sql/with-connection db
+    (sql/insert-record :accounts {:id 1 :name "Test One"})
+    (sql/insert-record :accounts {:id 2 :name "Test Two"})))
+
+(defn add-dummy-transactions []
+  (sql/with-connection db
+    (sql/insert-record :transactions {:amount 42.95 :credit 2 :debit 1})
+    (sql/insert-record :transactions {:amount 12.34 :credit 2 :debit 1})))
 
 (defn run-and-record [migration]
   (println "Running migration:" (:name (meta migration)))
@@ -39,4 +54,6 @@
            (run-and-record m))))))
 
 (defn -main []
-  (migrate #'initial-schema))
+  (migrate #'initial-schema)
+  (add-dummy-accounts)
+  (add-dummy-transactions))

@@ -8,9 +8,12 @@ Download from http://example.com/FIXME.
 
 ## Usage
 
-FIXME: explanation
+    $ createdb bk1
+    $ lein run -m bk1.db
+    $ lein ring server-headless
 
-    $ java -jar bk1-0.1.0-standalone.jar [args]
+    http://localhost:3002/graphql?query={transactions(account_id:1){id+amount+created_at}}
+
 
 ## Options
 

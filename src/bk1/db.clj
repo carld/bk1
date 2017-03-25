@@ -12,6 +12,7 @@
   (sql/create-table "accounts"
                     [:id :serial "PRIMARY KEY"]
                     [:name :varchar "NOT NULL"]
+                    [:iban :varchar]
                     [:created_at :timestamp "NOT NULL" "DEFAULT CURRENT_TIMESTAMP"])
   (sql/create-table "transactions"
                     [:id :serial "PRIMARY KEY"]

@@ -34,11 +34,14 @@
                                               [:entity_id :integer "NOT NULL" "REFERENCES entities(id)"]])]))
 
 (defn add-dummy-data [db]
-  (sql/insert! db :entities {:id 1 :name "Entity One"})
-  (sql/insert! db :accounts {:id 1 :name "Test One" :entity_id 1})
-  (sql/insert! db :accounts {:id 2 :name "Test Two" :entity_id 1})
-  (sql/insert! db :transactions {:amount 42.95 :credit 2 :debit 1})
-  (sql/insert! db :transactions {:amount 12.34 :credit 2 :debit 1}))
+  (sql/insert-multi! db :entities
+                     [{:id 1 :name "Entity One"}])
+  (sql/insert-multi! db :accounts
+                     [{:id 1 :name "Test One" :entity_id 1}
+                      {:id 2 :name "Test Two" :entity_id 1}])
+  (sql/insert-multi! db :transactions
+                     [{:amount 42.95 :credit 2 :debit 1}
+                      {:amount 12.34 :credit 2 :debit 1}]))
 
 (defn run-and-record [db migration]
   (println "Running migration:" (:name (meta migration)))

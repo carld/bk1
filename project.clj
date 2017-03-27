@@ -14,7 +14,7 @@
                  [clojure-future-spec "1.9.0-alpha14"]
                  [postgresql "9.3-1102.jdbc41"]
                  [tentacles "0.5.1"]
-                 [org.clojure/java.jdbc "0.2.3"]
+                 [org.clojure/java.jdbc "0.6.1"]
                  ; https://github.com/barend/java-iban.git
                  [nl.garvelink.oss/iban "1.5.0"]]
   :main ^:skip-aot bk1.core

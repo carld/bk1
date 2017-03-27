@@ -9,7 +9,7 @@
             [clojure.java.jdbc :as sql]
             [environ.core :as env]))
 
-(def db (env/env :database-url "postgres://localhost:5432/bk1"))
+(def db-spec {:connection-uri  (env/env :database-url "jdbc:postgresql://localhost:5432/bk1")})
 
 ; http://localhost:3002/graphql?query={transactions(account_id:1){id+amount+created_at}}
 ; http://localhost:3002/graphql?query={account(id:1){id+name+transactions+{id+amount+created_at}}}
@@ -49,22 +49,22 @@ schema {
 ")
 
 (defn get-transactions [account-id]
-  (sql/with-connection db
-    (try (sql/with-query-results txns
-                                 ["SELECT * FROM transactions WHERE credit = ? OR debit = ?"
-                                  account-id account-id]
-           (doall txns))
+  (sql/with-db-connection [db db-spec]
+    (try (sql/query db
+                    ["SELECT * FROM transactions WHERE credit = ? OR debit = ?"
+                     account-id account-id])
          (catch Exception _))))
 
 (defn get-account [account-id]
-  (sql/with-connection db
-    (try (sql/with-query-results [account]
-           ["SELECT * FROM accounts WHERE id = ?" account-id]
-           (if account
-             (sql/with-query-results txns
-               ["SELECT * FROM transactions WHERE credit = ? or debit = ?" account-id account-id]
-               (assoc account :transactions (doall txns)))))
-         (catch Exception _))))
+  (sql/with-db-connection [db db-spec]
+    (try
+      (let [account (sql/get-by-id db :accounts account-id :id)]
+        (if account
+          (assoc account :transactions
+                 (sql/query db
+                            ["SELECT * FROM transactions WHERE credit = ? or debit = ?" account-id account-id]))))
+      (catch Exception e
+        (println e)))))
 
 (defn starter-resolver-fn [type-name field-name]
   (match/match
@@ -79,6 +79,7 @@ schema {
 
 (defn execute
   [query variables]
+  (println query variables)
   (let [type-schema (validator/validate-schema parsed-schema)
         context nil]
     (executor/execute context type-schema starter-resolver-fn query variables)))

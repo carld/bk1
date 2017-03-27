@@ -7,19 +7,18 @@
             [ring.middleware.cors :refer [wrap-cors]]
             [ring.middleware.defaults :refer :all]
             [cheshire.core :as json]
-            [bk1.graphql :as graphql]))
+            [bk1.graphql :as graphql]
+            [clojure.walk]))
 
 (defroutes routes
   (GET "/" [] "Hello, World!")
   (GET "/graphql" [schema query variables :as request]
-       (println "GET query: " query)
        (response/response
         (graphql/execute query variables)))
   (POST "/graphql" [schema query variables :as request]
-        (println "POST query: " query)
         (response/response
          (try
-           (graphql/execute query (json/parse-string variables))
+           (graphql/execute query (clojure.walk/stringify-keys variables))
            (catch Throwable e
              (println e)))))
   (route/resources "/" {:root ""})

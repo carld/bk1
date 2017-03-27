@@ -20,5 +20,9 @@
   :main ^:skip-aot bk1.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}}
-  :plugins [[lein-ring "0.9.7"]]
-  :ring {:handler bk1.handler/app :auto-reload? true :port 3002})
+  :plugins [[lein-ring "0.9.7"]
+            [cider/cider-nrepl "0.13.0-SNAPSHOT"]]
+  :ring {:handler bk1.handler/app
+         :auto-reload? true
+         :port 3002
+         :nrepl {:start? true}})
